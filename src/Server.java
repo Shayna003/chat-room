@@ -19,7 +19,7 @@ public class Server
   public void show_message(Handler sender, String message) {
     for (Handler handler : handlers) {
       if (handler != sender) {
-        handler.output.println(message);
+        handler.output.println("\u001B[35m" + message + "\u001B[0m");
       }
     }
   }
@@ -32,8 +32,6 @@ public class Server
     while (true) {
       Socket client = server.accept();
       Handler handler = new Handler(client);
-      show_message(handler, "[SERVER]: a new user has joined.");
-      handlers.add(new Handler(client));
       new Thread(handler).start();
     }
   }
@@ -52,12 +50,14 @@ public class Server
     @Override
     public void run() {
       try {
-        output.println("enter your username: ");
+        output.println("\u001B[34menter your username: \u001B[0m");
         String username = input.readLine();
-        output.println("welcome to the chat room " + username + ", currently there are " + handlers.size() + " users total in the chat room.");
+        output.println("\u001B[34mwelcome " + username + ", currently there are " + handlers.size() + " other users in the chat room.\u001B[0m");
+        show_message(Handler.this, "\u001B[32muser [" + username + "] has joined the chat room.\u001B[0m");
+        handlers.add(Handler.this);
         String message;
         while ((message = input.readLine()) != null) { Server.this.show_message(Handler.this, "[" + username + "]: " + message); }
-        Server.this.show_message(Handler.this, "a user has left. " + handlers.size() + " remain in the chat room.");
+        Server.this.show_message(Handler.this, "\u001B[31ma user has left. " + handlers.size() + " remain in the chat room.\u001B[0m");
         handlers.remove(Handler.this);
       } catch (Exception e) {
         e.printStackTrace();
